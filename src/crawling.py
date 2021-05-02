@@ -339,38 +339,33 @@ def thread(que):
         category = cnn_lstm.categorization(word2vector)
         category2 = np.array(category).reshape(1, len(category))
         complete = np.concatenate((result, category2.T), axis=1)  # 카테고리화된 리스트와 지원사업 원본 합치기
+        print('end categorizing')
         body = [{'title': i[0], 'content': i[1], 'url': i[3], 'category': i[4]} for i in complete]  # json 변환
 
         for i in body:
             try:
-                response = requests.post("https://api.bluemango.me/update", data=i)  # api 전송
-                # json리스트를 한번에 보내려고했으나 에러떠서 하나씩 보냄
-                # 도메인 때문인지 postman도 그렇고 api get,post 요청 먹통
+                response = requests.post("https://api.bluemango.site/update", data=i)  # api 전송
                 print(response)
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError: # response 여러번 요청시 발생할수 있는 예외
                 print('api post failed!')
-                break
+                time.sleep(2) # 일정시간 기다려준뒤에 다시 post를 보내는 방식
+                response = requests.post("https://api.bluemango.site/update", data=i)
+                print(response)
+                continue
     else:
         print('no updated support post!')
-    print('end categorizing')
-    a = 1
-    # for i in result:
-    #     sql = "INSERT INTO data_set2 (title, CONTENT, url) select %s, %s, %s from dual WHERE NOT EXISTS(SELECT title, CONTENT,url FROM data_set2 WHERE CONTENT = %s);"
-    #     _cursor.execute(sql, (i[0], i[2], i[3], i[2]))
-    #     conn.commit()
-
-    # print('end db')
-    # conn.close()
+    print('post complete')
     bokjiro_list.clear()
     jungbu24_list.clear()
     result.clear()
 
 
-schedule.every().day.at("12:00").do(thread, que)
+schedule.every().day.at("08:00").do(thread, que) # 매일 8시에 업데이트
 
 if __name__ == "__main__":
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     while True:
         thread(que)
-        # schedule.run_pending()
+        schedule.run_pending()
         time.sleep(1)
+    # thread(que)

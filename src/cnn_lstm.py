@@ -46,15 +46,15 @@ def categorization(data):
         a = np.array(i)
         category = a.argmax()
         if category == 0:
-            category_list.append(0)
+            category_list.append('장애인')
         elif category == 1:
-            category_list.append(1)
+            category_list.append('저소득')
         elif category == 2:
-            category_list.append(2)
+            category_list.append('다문화')
         elif category == 3:
-            category_list.append(3)
+            category_list.append('고령자')
         elif category == 4:
-            category_list.append(4)
+            category_list.append('한부모')
     a = 1
     return category_list
 

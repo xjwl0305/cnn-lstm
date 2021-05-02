@@ -17,8 +17,11 @@ def get_vector(sentense):
     pos = mecab.pos(
         re.sub('<.+?>', '', sentense, 0, re.I | re.S).replace('[', '').replace(']', '').replace('\r', '').replace('\n',
                                                                                                                   ''))
-    for one in pos:
-        idx = metadata.index[metadata['word'] == one[0]].tolist()
+    for one in pos: # 여기 예외처리
+        try:
+            idx = metadata.index[metadata['word'] == one[0]].tolist()
+        except IndexError:
+            continue
         if one[1] in tags and len(idx) == 1:
             selected.append(vector.iloc[idx[0]].tolist())
     return selected
